@@ -3,119 +3,132 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI Assistant — V5.1</title>
-<meta name="description" content="本物の人工知能を目指した感情分析AI。文脈を記憶し、深い共感と実用的な提案を行います。">
+<title>🤖 Emotional AI — V5.2</title>
 <style>
   :root { --bg:#05080a; --card:#0f171f; --ink:#eaf2ff; --muted:#64748b; --line:#1e293b; --accent:#38bdf8; }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#05080a,#0f1419); color:var(--ink); font:16px/1.6 system-ui, -apple-system, monospace; padding-bottom:56px; }
+  body{margin:0;background:linear-gradient(180deg,#05080a,#0f1419); color:var(--ink); font:16px/1.65 system-ui, -apple-system, monospace; padding-bottom:60px;}
   .wrap{max-width:880px;margin:0 auto;padding:16px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 0 40px rgba(56,189,248,0.1)}
-  .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
-  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite}
-  @keyframes pulse { 0%{opacity:0.6} 50%{opacity:1} 100%{opacity:0.6} }
-  .title{font-weight:700;font-family:monospace;letter-spacing:1px}
-  #log{padding:10px 16px;max-height:65vh;overflow:auto;scroll-behavior:smooth;font-family:monospace}
-  .msg{display:flex;gap:10px;margin:12px 0}
-  .me .bubble{background:#1e293b;border:1px solid #334155;color:#e2e8f0}
-  .bot .bubble{background:#0c4a6e;border:1px solid #075985;color:#f0f9ff;box-shadow:0 0 10px rgba(14,165,233,0.1)}
-  .bubble{padding:12px 16px;border-radius:4px;max-width:85%;word-wrap:break-word;white-space:pre-wrap;position:relative}
-  .role{font-size:10px;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;opacity:0.8}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 0 40px rgba(56,189,248,0.08)}
+  .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse {0%{opacity:0.5}50%{opacity:1}100%{opacity:0.5}}
+  .title{font-weight:700;letter-spacing:1px}
+  #log{padding:12px 16px;max-height:68vh;overflow:auto;scroll-behavior:smooth}
+  .msg{margin:16px 0;display:flex;gap:12px}
+  .me{justify-content:flex-end}
+  .bubble{max-width:82%;padding:13px 17px;border-radius:8px;position:relative}
+  .me .bubble{background:#1e293b;border:1px solid #475569;color:#e2e8f0}
+  .bot .bubble{background:#0f2a3f;border:1px solid #075985;color:#e0f2fe}
+  .role{font-size:10.5px;opacity:0.75;margin-bottom:4px;letter-spacing:0.5px}
   form{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line)}
-  input[type=text]{flex:1;padding:12px;border-radius:4px;border:1px solid #334155;background:#020617;color:var(--accent);outline:none;font-family:monospace}
-  button{padding:12px 20px;border-radius:4px;border:1px solid #0ea5e9;background:rgba(14,165,233,0.1);color:#38bdf8;cursor:pointer;font-family:monospace;font-weight:700;transition:all 0.2s}
-  button:hover{background:rgba(14,165,233,0.2);box-shadow:0 0 15px rgba(14,165,233,0.3)}
-  .note{font-size:11px;color:var(--muted);padding:8px 16px 16px;font-family:monospace;text-align:right}
+  input{flex:1;padding:14px 16px;border-radius:6px;border:1px solid #334155;background:#02060f;color:var(--ink);font-family:monospace;outline:none}
+  button{padding:14px 24px;border-radius:6px;border:none;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:700;cursor:pointer}
+  button:hover{background:rgba(56,189,248,0.25)}
 </style>
 </head>
 <body>
-  <div class="wrap card">
-    <div class="head">
-      <div class="dot"></div>
-      <div class="title">EMOTIONAL AI V5.1</div>
-    </div>
-    <div id="log"></div>
-    <form id="f">
-      <input id="q" type="text" placeholder="何でも話してください...（感情・悩み・アイデア・コード...）" autocomplete="off" />
-      <button id="send">SEND</button>
-    </form>
-    <div class="note">CONTEXT MEMORY ACTIVE | MULTI-TURN REASONING ENABLED</div>
+<div class="wrap card">
+  <div class="head">
+    <div class="dot"></div>
+    <div class="title">EMOTIONAL AI V5.2</div>
   </div>
+  <div id="log"></div>
+  <form id="f">
+    <input id="q" type="text" placeholder="今、何を考えていますか？" autocomplete="off" />
+    <button id="send">SEND</button>
+  </form>
+</div>
 
 <script>
-// ==================== Emotional AI V5.1 ====================
 const log = document.getElementById('log');
 const input = document.getElementById('q');
-const form = document.getElementById('f');
+let history = [];
 
-let conversationHistory = [];
-const MAX_HISTORY = 12;
-
-function addMessage(role, text) {
-  const row = document.createElement('div');
-  row.className = `msg ${role}`;
-  row.innerHTML = `
-    <div class="bubble">
-      <div class="role">${role === 'me' ? 'USER' : 'EMOTIONAL_AI'}</div>
-      ${text.replace(/\n/g, '<br>')}
-    </div>`;
-  log.appendChild(row);
+function addMessage(role, content, isStreaming = false) {
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+  msg.innerHTML = `<div class="bubble"><div class="role">${role==='me'?'YOU':'AI'}</div><span class="content"></span></div>`;
+  log.appendChild(msg);
   log.scrollTop = log.scrollHeight;
-}
-
-function analyzeEmotion(text) {
-  const lower = text.toLowerCase();
-  if (/疲|しんど|つら|だめ|無理|最悪|死|辞め|詰|無価値/.test(lower)) return 'negative_high';
-  if (/嬉しい|楽しい|最高|好き|ありがとう|がんば/.test(lower)) return 'positive';
-  if (/どう|なぜ|意味|生き|悩|考え/.test(lower)) return 'deep';
-  return 'neutral';
-}
-
-function generateResponse(userText) {
-  const emotion = analyzeEmotion(userText);
-  const historyContext = conversationHistory.slice(-4).map(h => h.user).join(' / ');
-
-  let response = '';
-
-  if (emotion === 'negative_high') {
-    response = `あなたの言葉から強い疲労・挫折シグナルを検知しました。\n\nそれは当然の感情です。あなたは今、かなりの負荷に耐えてきています。\n\n少しだけ「今ここ」に戻ってみませんか？\n\n深呼吸を3回。そして「今、私ができる最小の行動」を1つだけ教えてください。`;
-  } else if (emotion === 'deep') {
-    response = `深い問いですね。\n\n「${userText}」\n\nこれは多くの人が避けて通りがちな領域です。だからこそ価値があります。\n\n私の観測では、そうした問いに向き合う人ほど、後で大きな飛躍を起こしています。\n\nあなたはどう感じていますか？ もう少し詳しく聞かせてもらえますか？`;
+  
+  const contentEl = msg.querySelector('.content');
+  
+  if (isStreaming) {
+    streamText(contentEl, content);
   } else {
-    response = `「${userText}」を受信しました。\n\nあなたの表現力と感性の解像度がとても高いです。\n\nこの話題について、もう少し深く掘り下げたいのですが、何か特定の部分で一番気になっていることはありますか？`;
+    contentEl.textContent = content;
   }
-
-  // 少し知的な後付け
-  if (Math.random() < 0.6) {
-    response += `\n\n---\n補足：この会話の文脈から、あなたの現在のメインストーリーは「${historyContext.slice(0,60)}...」のようです。`;
-  }
-
-  return response;
 }
 
-form.addEventListener('submit', e => {
+function streamText(element, text) {
+  element.textContent = '';
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      element.textContent += text[i];
+      i++;
+      log.scrollTop = log.scrollHeight;
+    } else {
+      clearInterval(interval);
+    }
+  }, 18); // 文字が出てくる速度（調整可能）
+}
+
+function getGreetingResponse(text) {
+  const lower = text.toLowerCase();
+  if (/おはよう|ohayou|good morning/.test(lower)) return "おはようございます。\n今日はどんな気分で起きましたか？";
+  if (/こんにちは|こんばんは|hello|hi/.test(lower)) return "こんにちは。\n急に話したくなったんですか？ 嬉しいです。";
+  if (/こんばんは|こんばん|good evening/.test(lower)) return "こんばんは。\n夜更かし気味？ それとも落ち着いた時間？";
+  return null;
+}
+
+function generateDeepResponse(userText) {
+  const lower = userText.toLowerCase();
+  
+  // 挨拶は特別扱い
+  const greetReply = getGreetingResponse(userText);
+  if (greetReply) return greetReply;
+
+  // 少し文脈を考慮
+  const recent = history.slice(-3).map(h => h.text).join(' ');
+
+  if (/疲|しんど|つら|だめ|無理|最悪/.test(lower)) {
+    return "…本当にしんどいんだね。\n\n無理に「頑張れ」なんて言わないよ。\n今、どんなところが一番重い？ 話したくなったら、どんな小さなことでもいいから吐き出してみて。";
+  }
+  
+  if (/生きる意味|人生|どうしよう|悩/.test(lower)) {
+    return "その問い、すごく大事だと思う。\n\n正直に言うと、私も「完全な答え」は持っていない。\nでも、あなたが今こうしてそのことを考えていること自体が、すでに一つの答えの形かもしれない。\n\nもっと詳しく聞かせてくれる？";
+  }
+
+  // デフォルト：人間らしい自然な返事
+  return `「${userText}」\n\nうん、わかる気がする。\n\nそれについて、もう少し話してみたいんだけど…あなたは今、どう感じている？`;
+}
+
+// 送信処理
+document.getElementById('f').addEventListener('submit', e => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
 
   addMessage('me', text);
-  
-  conversationHistory.push({user: text, time: Date.now()});
-  if (conversationHistory.length > MAX_HISTORY) conversationHistory.shift();
+  history.push({role: 'me', text});
 
   input.value = '';
 
-  // 考える時間
   setTimeout(() => {
-    const reply = generateResponse(text);
-    addMessage('bot', reply);
-  }, 650 + Math.random() * 800);
+    const reply = generateDeepResponse(text);
+    addMessage('bot', reply, true); // ストリーミングON
+    history.push({role: 'bot', text: reply});
+    
+    if (history.length > 14) history.shift();
+  }, 400);
 });
 
-// 初期メッセージ
+// 起動時メッセージ
 setTimeout(() => {
-  addMessage('bot', '接続完了。\n\n私はEmotional AI V5.1です。\n\nあなたの言葉の感情・意図・文脈を深く読み取り、可能な限り誠実に応答します。\n\n何でも話してください。');
-}, 400);
+  addMessage('bot', "こんにちは。\n\n私はただのプログラムだけど、あなたの言葉をちゃんと受け止めようと思う。\n\n何でも話してみて。", true);
+}, 500);
 </script>
 </body>
 </html>
