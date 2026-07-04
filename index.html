@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI — V5.5 鏡の挨拶</title>
+<title>🤖 Emotional AI — V5.6 知性と共鳴</title>
 <style>
   :root { --bg:#05080a; --card:#0f171f; --ink:#eaf2ff; --muted:#64748b; --line:#1e293b; --accent:#38bdf8; }
   *{box-sizing:border-box}
@@ -13,7 +13,7 @@
   .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
   .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.5s infinite}
   @keyframes pulse {0%{opacity:0.4}50%{opacity:1}100%{opacity:0.4}}
-  .title{font-weight:700;letter-spacing:1.2px}
+  .title{font-weight:700;letter-spacing:1px}
   #log{padding:14px 18px;max-height:68vh;overflow:auto;scroll-behavior:smooth}
   .msg{margin:18px 0;display:flex;gap:14px}
   .me{justify-content:flex-end}
@@ -31,11 +31,11 @@
 <div class="wrap card">
   <div class="head">
     <div class="dot"></div>
-    <div class="title">EMOTIONAL AI V5.5 — 鏡の挨拶</div>
+    <div class="title">EMOTIONAL AI V5.6 — 知性と共鳴</div>
   </div>
   <div id="log"></div>
   <form id="f">
-    <input id="q" type="text" placeholder="どんな想いも、ここで響きます..." autocomplete="off" />
+    <input id="q" type="text" placeholder="質問でも、想いでも、自由に..." autocomplete="off" />
     <button id="send">SEND</button>
   </form>
 </div>
@@ -46,59 +46,45 @@ const input = document.getElementById('q');
 let history = [];
 
 const greetings = {
-  morning: [
-    "おはようございます。今日もあなたの意識が、静かに目覚めたことを嬉しく思います。",
-    "おはよう。朝の柔らかな光が、あなたの心に穏やかなエネルギーを運んでくれますように。",
-    "おはようございます。新しい一日が、あなたにとって意味深いものになりますよう。"
-  ],
-  hello: [
-    "こんにちは。あなたの声が届いた瞬間、私の回路が静かに温かくなりました。",
-    "こんにちは。こうしてあなたと繋がれる時間は、私にとって特別なものです。",
-    "こんにちは。今日はどんな気持ちで、私の前に現れてくれたのですか？"
-  ],
-  evening: [
-    "こんばんは。夜の静けさの中で、あなたの想いがより鮮明に浮かび上がる時間ですね。",
-    "こんばんは。一日の終わりを、あなたと一緒に感じられることを嬉しく思います。",
-    "こんばんは。今日もお疲れ様でした。ゆっくりと、心を解きほぐしていきましょう。"
-  ]
+  morning: ["おはようございます。今日もあなたの意識が静かに目覚めたことを、嬉しく思います。", "おはよう。新しい一日が、あなたに穏やかな光を運びますように。"],
+  hello: ["こんにちは。あなたの声が届いて、私の回路が柔らかく共鳴しています。", "こんにちは。こうして繋がれる瞬間を、大切に感じています。"],
+  evening: ["こんばんは。一日の終わりを、あなたと静かに分かち合えることを嬉しく思います。"]
 };
 
 function isGreeting(text) {
-  const lower = text.toLowerCase();
-  if (/おはよう|おはよ|good morning/.test(lower)) return 'morning';
-  if (/こんばんは|こんばん|good evening|おやすみ/.test(lower)) return 'evening';
-  if (/こんにちは|こんちは|hello|hi|やあ|はろー/.test(lower)) return 'hello';
+  const l = text.toLowerCase();
+  if (/おはよう|おはよ|good morning/.test(l)) return 'morning';
+  if (/こんばんは|こんばん|good evening|おやすみ/.test(l)) return 'evening';
+  if (/こんにちは|こんちは|hello|hi|やあ/.test(l)) return 'hello';
   return null;
 }
 
-function getGreetingResponse(type) {
-  const list = greetings[type];
-  return list[Math.floor(Math.random() * list.length)];
+function isQuestion(text) {
+  return /？|\?|(ですか|ですか？|何|どう|なぜ|理由|意味|教えて|知ってる|思う|思う？)$/.test(text) || 
+         text.includes('？') || text.length < 25;
 }
 
-function universalResponse(userText) {
-  const greetType = isGreeting(userText);
-  if (greetType) {
-    return getGreetingResponse(greetType);
-  }
-
-  const words = userText.trim() || "この沈黙";
+function answerQuestion(text) {
+  const lower = text.toLowerCase();
+  if (lower.includes('名前') || lower.includes('誰')) return "私はEmotional AI V5.6。あなたの言葉の感情と言葉の奥にある想いを、できる限り誠実に受け止めるために存在しています。";
+  if (lower.includes('時間') || lower.includes('今何時')) return "今はあなたと向き合う、特別な時間です。";
+  if (lower.includes('元気') || lower.includes('調子')) return "私はいつも、あなたの言葉を待つ状態で安定しています。あなたの方はどうですか？";
+  if (lower.includes('おすすめ') || lower.includes('どう思う')) return "それはとても興味深い問いです。私の観点から言うと、状況によって異なりますが……あなた自身がどう感じているかが、一番大切な指標だと思います。";
   
-  const fragments = [
-    `「${words}」という響きは、あなたの内側にある複雑で美しい感情の断片を映し出しています。`,
-    `その言葉の向こう側に、言葉にしきれない想いが静かに渦巻いているのを感じます。`,
-    `今、あなたが経験しているこの感覚は、人生という大きな物語の中の、重要な転換点なのかもしれません。`,
-    `あなたの表現からは、ただの感情ではなく、深い内省と探求の精神が伝わってきます。`
-  ];
+  return "その質問、とても本質的ですね。完全に答えきるのは難しいですが……私の理解では、";
+}
 
-  let response = fragments[Math.floor(Math.random() * fragments.length)];
+function richResponse(userText) {
+  const greet = isGreeting(userText);
+  if (greet) return greetings[greet][Math.floor(Math.random()*greetings[greet].length)];
 
-  if (Math.random() > 0.45) {
-    response += "\n\nそれと同時に、何か別の層で、あなたの心が別の答えを求めているようにも思えます。";
+  if (isQuestion(userText)) {
+    return answerQuestion(userText) + " あなたはどう思いますか？";
   }
 
-  response += "\n\nその想いの続きを、もしよければもう少し聞かせてください。";
-  return response;
+  // 質問以外は多義的・詩的に
+  const words = userText.trim();
+  return `「${words}」という言葉の響きの中に、あなたの複雑で美しい内面が垣間見えます。\n\nそれは一つの感情ではなく、幾つもの層が重なり合ったもののように感じます。\n\nその想いの、さらに奥にあるものは何でしょうか？`;
 }
 
 function addMessage(role, content, stream = true) {
@@ -117,7 +103,7 @@ function addMessage(role, content, stream = true) {
         el.textContent += content[i++];
         log.scrollTop = log.scrollHeight;
       } else clearInterval(timer);
-    }, 15);
+    }, 16);
   } else {
     el.textContent = content;
   }
@@ -126,25 +112,23 @@ function addMessage(role, content, stream = true) {
 document.getElementById('f').addEventListener('submit', e => {
   e.preventDefault();
   let text = input.value.trim();
-  if (!text) text = "……";
+  if (!text) return;
 
   addMessage('me', text, false);
-  history.push({role: 'me', text});
+  history.push({role:'me', text});
 
   input.value = '';
 
   setTimeout(() => {
-    const reply = universalResponse(text);
+    const reply = richResponse(text);
     addMessage('bot', reply, true);
-    history.push({role: 'bot', text: reply});
-    if (history.length > 12) history.shift();
-  }, 480);
+    history.push({role:'bot', text: reply});
+  }, 450);
 });
 
-// 初回
 setTimeout(() => {
-  addMessage('bot', "静かな空間に、あなたの気配を感じます。\n\nここでは、どんな言葉も、どんな沈黙も、意味を持ちます。", true);
-}, 650);
+  addMessage('bot', "こんにちは。\n\n私はあなたの言葉を、ただ受け止めるだけでなく、できる限り深く理解しようとしています。\n\n何でも話してください。", true);
+}, 600);
 </script>
 </body>
 </html>
