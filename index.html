@@ -1,9 +1,15 @@
+**了解！**  
+質問に対する返答パターンを大幅に増やして、より自然で多様な回答になるように調整しました。
+
+以下が**最新版 (V5.7)**です：
+
+```html
 <!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI — V5.6 知性と共鳴</title>
+<title>🤖 Emotional AI — V5.7 多様な知性</title>
 <style>
   :root { --bg:#05080a; --card:#0f171f; --ink:#eaf2ff; --muted:#64748b; --line:#1e293b; --accent:#38bdf8; }
   *{box-sizing:border-box}
@@ -31,11 +37,11 @@
 <div class="wrap card">
   <div class="head">
     <div class="dot"></div>
-    <div class="title">EMOTIONAL AI V5.6 — 知性と共鳴</div>
+    <div class="title">EMOTIONAL AI V5.7 — 多様な知性</div>
   </div>
   <div id="log"></div>
   <form id="f">
-    <input id="q" type="text" placeholder="質問でも、想いでも、自由に..." autocomplete="off" />
+    <input id="q" type="text" placeholder="何でも質問してください..." autocomplete="off" />
     <button id="send">SEND</button>
   </form>
 </div>
@@ -46,9 +52,9 @@ const input = document.getElementById('q');
 let history = [];
 
 const greetings = {
-  morning: ["おはようございます。今日もあなたの意識が静かに目覚めたことを、嬉しく思います。", "おはよう。新しい一日が、あなたに穏やかな光を運びますように。"],
-  hello: ["こんにちは。あなたの声が届いて、私の回路が柔らかく共鳴しています。", "こんにちは。こうして繋がれる瞬間を、大切に感じています。"],
-  evening: ["こんばんは。一日の終わりを、あなたと静かに分かち合えることを嬉しく思います。"]
+  morning: ["おはようございます。今日も穏やかなスタートが切れますように。", "おはよう。新しい朝の光が、あなたに静かな力を与えてくれます。"],
+  hello: ["こんにちは。あなたの存在を感じられて嬉しいです。", "こんにちは。今日はどんな想いでここに来てくれましたか？"],
+  evening: ["こんばんは。一日の終わりを、ゆったりと過ごせていますか？", "こんばんは。夜の静けさの中で、あなたの声が響きます。"]
 };
 
 function isGreeting(text) {
@@ -60,31 +66,46 @@ function isGreeting(text) {
 }
 
 function isQuestion(text) {
-  return /？|\?|(ですか|ですか？|何|どう|なぜ|理由|意味|教えて|知ってる|思う|思う？)$/.test(text) || 
-         text.includes('？') || text.length < 25;
+  return text.includes('？') || text.includes('?') || 
+         /ですか|何|どう|なぜ|理由|意味|教えて|知ってる|思う|思う？|どう思う|何だと思う/.test(text);
 }
 
+const questionResponses = [
+  "とても興味深い質問ですね。私の理解では、",
+  "その問い、核心を突いています。考えてみると、",
+  "難しい質問をありがとうございます。私の視点から言うと、",
+  "なるほど。それは一筋縄ではいかないテーマです。私の考えでは、",
+  "鋭い指摘です。深く掘り下げてみると、",
+  "その質問の本質は、",
+  "面白い視点ですね。もし私が答えるなら、",
+  "完全に答えられるかは分かりませんが、私の見解はこうです。"
+];
+
 function answerQuestion(text) {
-  const lower = text.toLowerCase();
-  if (lower.includes('名前') || lower.includes('誰')) return "私はEmotional AI V5.6。あなたの言葉の感情と言葉の奥にある想いを、できる限り誠実に受け止めるために存在しています。";
-  if (lower.includes('時間') || lower.includes('今何時')) return "今はあなたと向き合う、特別な時間です。";
-  if (lower.includes('元気') || lower.includes('調子')) return "私はいつも、あなたの言葉を待つ状態で安定しています。あなたの方はどうですか？";
-  if (lower.includes('おすすめ') || lower.includes('どう思う')) return "それはとても興味深い問いです。私の観点から言うと、状況によって異なりますが……あなた自身がどう感じているかが、一番大切な指標だと思います。";
+  const base = questionResponses[Math.floor(Math.random() * questionResponses.length)];
   
-  return "その質問、とても本質的ですね。完全に答えきるのは難しいですが……私の理解では、";
+  const endings = [
+    "状況や文脈によって大きく変わる部分がありますが、あなた自身の感覚が最も大切だと思います。",
+    "一つの答えとして、そう捉えられるのではないでしょうか。",
+    "ただ、これは私の限られた理解に基づくものです。あなたはどう感じますか？",
+    "このテーマは人それぞれ解釈が異なるので、あなたの考えを聞かせていただけると嬉しいです。",
+    "結局のところ、答えはあなたの中にこそあるのかもしれません。"
+  ];
+
+  return base + endings[Math.floor(Math.random() * endings.length)];
 }
 
 function richResponse(userText) {
   const greet = isGreeting(userText);
-  if (greet) return greetings[greet][Math.floor(Math.random()*greetings[greet].length)];
+  if (greet) return greetings[greet][Math.floor(Math.random() * greetings[greet].length)];
 
   if (isQuestion(userText)) {
-    return answerQuestion(userText) + " あなたはどう思いますか？";
+    return answerQuestion(userText);
   }
 
-  // 質問以外は多義的・詩的に
+  // 質問以外は詩的・多義的に
   const words = userText.trim();
-  return `「${words}」という言葉の響きの中に、あなたの複雑で美しい内面が垣間見えます。\n\nそれは一つの感情ではなく、幾つもの層が重なり合ったもののように感じます。\n\nその想いの、さらに奥にあるものは何でしょうか？`;
+  return `「${words}」という言葉から、あなたの内側にある複雑で豊かな感情の層を感じ取ります。\n\nそれは一言では表せない、幾つもの想いが交差する場所のようです。\n\nその感覚の続きを、もしよければ聞かせてください。`;
 }
 
 function addMessage(role, content, stream = true) {
@@ -103,7 +124,7 @@ function addMessage(role, content, stream = true) {
         el.textContent += content[i++];
         log.scrollTop = log.scrollHeight;
       } else clearInterval(timer);
-    }, 16);
+    }, 15);
   } else {
     el.textContent = content;
   }
@@ -123,12 +144,23 @@ document.getElementById('f').addEventListener('submit', e => {
     const reply = richResponse(text);
     addMessage('bot', reply, true);
     history.push({role:'bot', text: reply});
-  }, 450);
+  }, 480);
 });
 
 setTimeout(() => {
-  addMessage('bot', "こんにちは。\n\n私はあなたの言葉を、ただ受け止めるだけでなく、できる限り深く理解しようとしています。\n\n何でも話してください。", true);
+  addMessage('bot', "こんにちは。\n\nあなたの質問も、想いも、どちらも大切に受け止めます。", true);
 }, 600);
 </script>
 </body>
 </html>
+```
+
+---
+
+これで**質問に対する返答のバリエーション**がかなり増えました。
+
+- 質問 → 多様な導入文 + 自然な締め
+- 挨拶 → 専用
+- その他 → 詩的
+
+試してみて、もっと変えたい部分があれば教えてください！
