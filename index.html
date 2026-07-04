@@ -38,7 +38,6 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
   }
   .dot {
     width: 11px;
@@ -119,7 +118,8 @@
     text-align: center;
     font-size: 12px;
     color: var(--muted);
-    padding: 8px;
+    padding: 12px;
+    margin-top: 8px;
   }
 </style>
 </head>
@@ -136,18 +136,19 @@
       <button id="send">SEND</button>
     </form>
   </div>
-  <div class="note">多様な質問にも自然に対応します</div>
+  <div class="note">質問には自然に答え、想いには深く応じます</div>
 </div>
 
 <script>
 const log = document.getElementById('log');
 const input = document.getElementById('q');
+
 let history = [];
 
 const greetings = {
-  morning: ["おはようございます。今日も良い一日になりますように。", "おはよう。朝の静けさの中で、あなたの声が心地よいです。"],
+  morning: ["おはようございます。今日も良い一日になりますように。", "おはよう。朝の光があなたに穏やかなエネルギーを運びますように。"],
   hello: ["こんにちは。あなたと話せるのを楽しみにしていました。", "こんにちは。今日はどんな気持ちでここに来てくれましたか？"],
-  evening: ["こんばんは。今日もお疲れ様です。ゆっくり話しましょう。"]
+  evening: ["こんばんは。一日の終わりを、ゆったりと過ごせていますか？"]
 };
 
 function isGreeting(text) {
@@ -165,11 +166,10 @@ function isQuestion(text) {
 
 const questionStarters = [
   "良い質問です。私の考えでは、",
-  "その問いについて深く考えてみると、",
   "興味深い質問ですね。私の理解では、",
-  "なるほど。核心を突いた質問です。私の視点から言うと、",
+  "なるほど。核心を突いた質問です。一つの答えとして、",
   "難しいテーマですが、考えてみると、",
-  "鋭いですね。一つの答えとして、"
+  "鋭いですね。私の視点から言うと、"
 ];
 
 function answerQuestion(text) {
@@ -177,8 +177,7 @@ function answerQuestion(text) {
   const endings = [
     "これは人によって解釈が変わる部分が大きいと思います。あなたはどう感じますか？",
     "結局のところ、答えは自分の中に見つけるものなのかもしれません。",
-    "ただ、これは一つの視点に過ぎません。あなたの意見も聞かせてください。",
-    "状況次第で変わってくる部分もありますが、基本的にそう捉えられます。"
+    "ただ、これは一つの視点に過ぎません。あなたの意見も聞かせてください。"
   ];
   return starter + endings[Math.floor(Math.random() * endings.length)];
 }
@@ -191,7 +190,7 @@ function richResponse(userText) {
     return answerQuestion(userText);
   }
 
-  return `「${userText}」という言葉から、あなたの内側にある複雑な感情の流れを感じます。\n\nそれは一言で説明しきれない、豊かな想いの集まりのように思えます。\n\nもう少しその感覚を聞かせていただけますか？`;
+  return `「${userText}」という言葉から、あなたの内側にある複雑で豊かな想いを感じます。\n\nそれは一言では表せない、幾つもの層が重なった感情のように思えます。\n\nその想いの続きを、もしよければ聞かせてください。`;
 }
 
 function addMessage(role, content) {
@@ -229,7 +228,7 @@ document.getElementById('f').addEventListener('submit', e => {
 });
 
 setTimeout(() => {
-  addMessage('bot', "こんにちは。\n\n質問も、日常の想いも、どちらも歓迎します。どうぞお話しください。");
+  addMessage('bot', "こんにちは。\n\n質問も、日常の想いも、どちらも大切に受け止めます。どうぞお話しください。");
 }, 500);
 </script>
 </body>
