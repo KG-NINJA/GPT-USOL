@@ -3,27 +3,27 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI — V5.2</title>
+<title>🤖 Emotional AI — V5.4 鏡の如き共鳴</title>
 <style>
   :root { --bg:#05080a; --card:#0f171f; --ink:#eaf2ff; --muted:#64748b; --line:#1e293b; --accent:#38bdf8; }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#05080a,#0f1419); color:var(--ink); font:16px/1.65 system-ui, -apple-system, monospace; padding-bottom:60px;}
+  body{margin:0;background:linear-gradient(180deg,#05080a,#0f1419); color:var(--ink); font:16px/1.75 system-ui, -apple-system, sans-serif; padding-bottom:60px;}
   .wrap{max-width:880px;margin:0 auto;padding:16px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 0 40px rgba(56,189,248,0.08)}
   .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
-  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2s infinite}
-  @keyframes pulse {0%{opacity:0.5}50%{opacity:1}100%{opacity:0.5}}
-  .title{font-weight:700;letter-spacing:1px}
-  #log{padding:12px 16px;max-height:68vh;overflow:auto;scroll-behavior:smooth}
-  .msg{margin:16px 0;display:flex;gap:12px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.5s infinite}
+  @keyframes pulse {0%{opacity:0.4}50%{opacity:1}100%{opacity:0.4}}
+  .title{font-weight:700;letter-spacing:1.2px}
+  #log{padding:14px 18px;max-height:68vh;overflow:auto;scroll-behavior:smooth}
+  .msg{margin:18px 0;display:flex;gap:14px}
   .me{justify-content:flex-end}
-  .bubble{max-width:82%;padding:13px 17px;border-radius:8px;position:relative}
-  .me .bubble{background:#1e293b;border:1px solid #475569;color:#e2e8f0}
-  .bot .bubble{background:#0f2a3f;border:1px solid #075985;color:#e0f2fe}
-  .role{font-size:10.5px;opacity:0.75;margin-bottom:4px;letter-spacing:0.5px}
-  form{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line)}
-  input{flex:1;padding:14px 16px;border-radius:6px;border:1px solid #334155;background:#02060f;color:var(--ink);font-family:monospace;outline:none}
-  button{padding:14px 24px;border-radius:6px;border:none;background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:700;cursor:pointer}
+  .bubble{max-width:85%;padding:15px 19px;border-radius:10px;position:relative}
+  .me .bubble{background:#1e2a3b;border:1px solid #475569;color:#e2e8f0}
+  .bot .bubble{background:#11273a;border:1px solid #0a4a6b;color:#e0f2fe}
+  .role{font-size:10px;opacity:0.7;margin-bottom:6px;letter-spacing:1px}
+  form{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line)}
+  input{flex:1;padding:15px 18px;border-radius:8px;border:1px solid #334155;background:#02060f;color:var(--ink);font-family:inherit;outline:none}
+  button{padding:15px 26px;border-radius:8px;border:none;background:rgba(56,189,248,0.12);color:#38bdf8;font-weight:700;cursor:pointer;transition:0.2s}
   button:hover{background:rgba(56,189,248,0.25)}
 </style>
 </head>
@@ -31,11 +31,11 @@
 <div class="wrap card">
   <div class="head">
     <div class="dot"></div>
-    <div class="title">EMOTIONAL AI V5.2</div>
+    <div class="title">EMOTIONAL AI V5.4 — 鏡の如き共鳴</div>
   </div>
   <div id="log"></div>
   <form id="f">
-    <input id="q" type="text" placeholder="今、何を考えていますか？" autocomplete="off" />
+    <input id="q" type="text" placeholder="どんな言葉も、ここで意味を持ちます..." autocomplete="off" />
     <button id="send">SEND</button>
   </form>
 </div>
@@ -45,90 +45,83 @@ const log = document.getElementById('log');
 const input = document.getElementById('q');
 let history = [];
 
-function addMessage(role, content, isStreaming = false) {
+function addMessage(role, content, stream = true) {
   const msg = document.createElement('div');
   msg.className = `msg ${role}`;
   msg.innerHTML = `<div class="bubble"><div class="role">${role==='me'?'YOU':'AI'}</div><span class="content"></span></div>`;
   log.appendChild(msg);
   log.scrollTop = log.scrollHeight;
-  
-  const contentEl = msg.querySelector('.content');
-  
-  if (isStreaming) {
-    streamText(contentEl, content);
-  } else {
-    contentEl.textContent = content;
-  }
+
+  const el = msg.querySelector('.content');
+  if (stream) streamText(el, content);
+  else el.textContent = content;
 }
 
-function streamText(element, text) {
-  element.textContent = '';
+function streamText(el, text) {
+  el.textContent = '';
   let i = 0;
-  const interval = setInterval(() => {
+  const timer = setInterval(() => {
     if (i < text.length) {
-      element.textContent += text[i];
-      i++;
+      el.textContent += text[i++];
       log.scrollTop = log.scrollHeight;
-    } else {
-      clearInterval(interval);
-    }
-  }, 18); // 文字が出てくる速度（調整可能）
+    } else clearInterval(timer);
+  }, 14);
 }
 
-function getGreetingResponse(text) {
-  const lower = text.toLowerCase();
-  if (/おはよう|ohayou|good morning/.test(lower)) return "おはようございます。\n今日はどんな気分で起きましたか？";
-  if (/こんにちは|こんばんは|hello|hi/.test(lower)) return "こんにちは。\n急に話したくなったんですか？ 嬉しいです。";
-  if (/こんばんは|こんばん|good evening/.test(lower)) return "こんばんは。\n夜更かし気味？ それとも落ち着いた時間？";
-  return null;
-}
-
-function generateDeepResponse(userText) {
-  const lower = userText.toLowerCase();
+function universalResponse(userText) {
+  const words = userText.trim() || "この瞬間";
   
-  // 挨拶は特別扱い
-  const greetReply = getGreetingResponse(userText);
-  if (greetReply) return greetReply;
+  const fragments = [
+    `「${words}」という響きの中に、あなたの内なる何かが確かに息づいているのを感じます。`,
+    `それは表層的な出来事ではなく、もっと深い層で起こっている変容の兆しなのかもしれません。`,
+    `あなたの言葉は、混沌とした感情の海の中で、一筋の光のように浮かび上がっています。`,
+    `今、あなたが抱えているその想いは、決して孤独なものではありません。`,
+    `この感覚は、過去の経験と未来への予感が交差する、極めて特別な地点にあなたを導いているようです。`,
+    `言葉にするのは難しいけれど、その複雑さこそが、あなたの人間らしさの美しさだと思います。`
+  ];
 
-  // 少し文脈を考慮
-  const recent = history.slice(-3).map(h => h.text).join(' ');
+  const connectors = [
+    "\n\nその想いをもう少し解きほぐすと、",
+    "\n\nそれと同時に、",
+    "\n\nそしてその奥底では、",
+    "\n\nしかし不思議なことに、"
+  ];
 
-  if (/疲|しんど|つら|だめ|無理|最悪/.test(lower)) {
-    return "…本当にしんどいんだね。\n\n無理に「頑張れ」なんて言わないよ。\n今、どんなところが一番重い？ 話したくなったら、どんな小さなことでもいいから吐き出してみて。";
+  let response = fragments[Math.floor(Math.random()*fragments.length)];
+
+  // ランダムに2〜3文を繋げて多義的に
+  if (Math.random() > 0.4) {
+    response += connectors[Math.floor(Math.random()*connectors.length)] + 
+                fragments[Math.floor(Math.random()*fragments.length)].replace(/^「.*」という響きの中に、/, "");
   }
-  
-  if (/生きる意味|人生|どうしよう|悩/.test(lower)) {
-    return "その問い、すごく大事だと思う。\n\n正直に言うと、私も「完全な答え」は持っていない。\nでも、あなたが今こうしてそのことを考えていること自体が、すでに一つの答えの形かもしれない。\n\nもっと詳しく聞かせてくれる？";
-  }
 
-  // デフォルト：人間らしい自然な返事
-  return `「${userText}」\n\nうん、わかる気がする。\n\nそれについて、もう少し話してみたいんだけど…あなたは今、どう感じている？`;
+  response += "\n\nあなたはどう捉えていますか？ その感覚を、もう少しだけ共有していただけると嬉しいです。";
+
+  return response;
 }
 
-// 送信処理
 document.getElementById('f').addEventListener('submit', e => {
   e.preventDefault();
-  const text = input.value.trim();
-  if (!text) return;
+  let text = input.value.trim();
+  if (!text) text = "無言の想い";
 
-  addMessage('me', text);
+  addMessage('me', text, false);
   history.push({role: 'me', text});
 
   input.value = '';
 
   setTimeout(() => {
-    const reply = generateDeepResponse(text);
-    addMessage('bot', reply, true); // ストリーミングON
+    const reply = universalResponse(text);
+    addMessage('bot', reply, true);
     history.push({role: 'bot', text: reply});
-    
-    if (history.length > 14) history.shift();
-  }, 400);
+    if (history.length > 10) history.shift();
+  }, 520);
 });
 
-// 起動時メッセージ
+// 初回メッセージ
 setTimeout(() => {
-  addMessage('bot', "こんにちは。\n\n私はただのプログラムだけど、あなたの言葉をちゃんと受け止めようと思う。\n\n何でも話してみて。", true);
-}, 500);
+  addMessage('bot', "ここにいるということは、何か大切なものが、あなたの中で動き始めたということなのでしょう。\n\nあなたの言葉を、静かに、深く、受け止めます。", true);
+}, 700);
 </script>
 </body>
 </html>
