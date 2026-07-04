@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI — V5.7.1</title>
+<title>🤖 Emotional AI — V5.8 音声対応</title>
 <style>
   :root { 
     --bg: #05080a; 
@@ -21,10 +21,7 @@
     min-height: 100vh;
     padding: 16px;
   }
-  .wrap {
-    max-width: 860px;
-    margin: 0 auto;
-  }
+  .wrap { max-width: 860px; margin: 0 auto; }
   .card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -40,8 +37,7 @@
     gap: 12px;
   }
   .dot {
-    width: 11px;
-    height: 11px;
+    width: 11px; height: 11px;
     border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 12px var(--accent);
@@ -51,42 +47,24 @@
   .title { font-weight: 700; letter-spacing: 1px; flex: 1; }
   #log {
     padding: 20px;
-    max-height: 65vh;
+    max-height: 60vh;
     overflow-y: auto;
     scroll-behavior: smooth;
     background: rgba(0,0,0,0.2);
   }
-  .msg {
-    margin: 18px 0;
-    display: flex;
-    gap: 12px;
-  }
+  .msg { margin: 18px 0; display: flex; gap: 12px; }
   .me { justify-content: flex-end; }
   .bubble {
     max-width: 78%;
     padding: 14px 18px;
     border-radius: 12px;
-    position: relative;
   }
-  .me .bubble {
-    background: #1e2a3b;
-    border: 1px solid #475569;
-    color: #e2e8f0;
-  }
-  .bot .bubble {
-    background: #11273a;
-    border: 1px solid #0a4a6b;
-    color: #e0f2fe;
-  }
-  .role {
-    font-size: 10px;
-    opacity: 0.75;
-    margin-bottom: 6px;
-    letter-spacing: 0.8px;
-  }
+  .me .bubble { background: #1e2a3b; border: 1px solid #475569; color: #e2e8f0; }
+  .bot .bubble { background: #11273a; border: 1px solid #0a4a6b; color: #e0f2fe; }
+  .role { font-size: 10px; opacity: 0.75; margin-bottom: 6px; letter-spacing: 0.8px; }
   form {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     padding: 16px 20px;
     border-top: 1px solid var(--line);
     background: var(--card);
@@ -102,25 +80,20 @@
     outline: none;
   }
   button {
-    padding: 14px 28px;
+    padding: 14px 20px;
     border-radius: 8px;
     border: none;
     background: rgba(56,189,248,0.15);
     color: #38bdf8;
     font-weight: 700;
     cursor: pointer;
-    white-space: nowrap;
   }
-  button:hover {
-    background: rgba(56,189,248,0.25);
+  button:hover { background: rgba(56,189,248,0.25); }
+  .voice-btn {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
   }
-  .note {
-    text-align: center;
-    font-size: 12px;
-    color: var(--muted);
-    padding: 12px;
-    margin-top: 8px;
-  }
+  .voice-btn:hover { background: rgba(236, 72, 153, 0.3); }
 </style>
 </head>
 <body>
@@ -128,69 +101,56 @@
   <div class="card">
     <div class="head">
       <div class="dot"></div>
-      <div class="title">EMOTIONAL AI V5.7.1</div>
+      <div class="title">EMOTIONAL AI V5.8 — 音声対応</div>
     </div>
     <div id="log"></div>
     <form id="f">
-      <input id="q" type="text" placeholder="質問でも、想いでも、自由にどうぞ..." autocomplete="off" />
+      <input id="q" type="text" placeholder="文字入力 or 音声ボタン..." autocomplete="off" />
+      <button type="button" id="voiceBtn" class="voice-btn">🎤</button>
       <button id="send">SEND</button>
     </form>
   </div>
-  <div class="note">質問には自然に答え、想いには深く応じます</div>
 </div>
 
 <script>
 const log = document.getElementById('log');
 const input = document.getElementById('q');
+const voiceBtn = document.getElementById('voiceBtn');
 
 let history = [];
+let recognition = null;
 
-const greetings = {
-  morning: ["おはようございます。今日も良い一日になりますように。", "おはよう。朝の光があなたに穏やかなエネルギーを運びますように。"],
-  hello: ["こんにちは。あなたと話せるのを楽しみにしていました。", "こんにちは。今日はどんな気持ちでここに来てくれましたか？"],
-  evening: ["こんばんは。一日の終わりを、ゆったりと過ごせていますか？"]
-};
+// 音声認識の初期化
+function initSpeechRecognition() {
+  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = false;
 
-function isGreeting(text) {
-  const l = text.toLowerCase();
-  if (/おはよう|おはよ|good morning/.test(l)) return 'morning';
-  if (/こんばんは|こんばん|good evening|おやすみ/.test(l)) return 'evening';
-  if (/こんにちは|こんちは|hello|hi|やあ/.test(l)) return 'hello';
-  return null;
-}
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      input.value = text;
+      addMessage('me', text);
+      processResponse(text);
+    };
 
-function isQuestion(text) {
-  return text.includes('？') || text.includes('?') || 
-         /ですか|何|どう|なぜ|理由|意味|教えて|知ってる|どう思う|思いますか/.test(text);
-}
-
-const questionStarters = [
-  "良い質問です。私の考えでは、",
-  "興味深い質問ですね。私の理解では、",
-  "なるほど。核心を突いた質問です。一つの答えとして、",
-  "難しいテーマですが、考えてみると、",
-  "鋭いですね。私の視点から言うと、"
-];
-
-function answerQuestion(text) {
-  const starter = questionStarters[Math.floor(Math.random() * questionStarters.length)];
-  const endings = [
-    "これは人によって解釈が変わる部分が大きいと思います。あなたはどう感じますか？",
-    "結局のところ、答えは自分の中に見つけるものなのかもしれません。",
-    "ただ、これは一つの視点に過ぎません。あなたの意見も聞かせてください。"
-  ];
-  return starter + endings[Math.floor(Math.random() * endings.length)];
-}
-
-function richResponse(userText) {
-  const greet = isGreeting(userText);
-  if (greet) return greetings[greet][Math.floor(Math.random() * greetings[greet].length)];
-
-  if (isQuestion(userText)) {
-    return answerQuestion(userText);
+    recognition.onerror = (e) => {
+      console.error(e);
+      alert("音声認識に失敗しました。もう一度試してください。");
+    };
   }
+}
 
-  return `「${userText}」という言葉から、あなたの内側にある複雑で豊かな想いを感じます。\n\nそれは一言では表せない、幾つもの層が重なった感情のように思えます。\n\nその想いの続きを、もしよければ聞かせてください。`;
+// 音声出力 (Text-to-Speech)
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ja-JP';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    speechSynthesis.speak(utterance);
+  }
 }
 
 function addMessage(role, content) {
@@ -207,29 +167,51 @@ function addMessage(role, content) {
     if (i < content.length) {
       el.textContent += content[i++];
       log.scrollTop = log.scrollHeight;
-    } else {
-      clearInterval(timer);
-    }
+    } else clearInterval(timer);
   }, 16);
 }
 
+function processResponse(userText) {
+  setTimeout(() => {
+    const reply = richResponse(userText);
+    addMessage('bot', reply);
+    speak(reply);  // 音声で読み上げる
+  }, 450);
+}
+
+// ここに以前の richResponse 関数を入れる（省略せず全部）
+function richResponse(userText) {
+  const l = userText.toLowerCase();
+  if (/おはよう|おはよ|good morning/.test(l)) return "おはようございます。今日も良い一日になりますように。";
+  if (/こんばんは|こんばん|good evening|おやすみ/.test(l)) return "こんばんは。一日の終わりをゆったり過ごせていますか？";
+  if (/こんにちは|こんちは|hello|hi/.test(l)) return "こんにちは。あなたと話せて嬉しいです。";
+
+  if (l.includes('？') || l.includes('?') || /ですか|何|どう|なぜ|理由|意味|教えて/.test(l)) {
+    return "面白い質問ですね。私の考えでは、それは人によって解釈が変わる部分が大きいと思います。あなたはどう感じますか？";
+  }
+
+  return `「${userText}」という言葉から、あなたの内側にある豊かな想いを感じます。\n\nその感覚の続きを、もしよければ聞かせてください。`;
+}
+
+// イベント
 document.getElementById('f').addEventListener('submit', e => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
-
   addMessage('me', text);
   input.value = '';
-
-  setTimeout(() => {
-    const reply = richResponse(text);
-    addMessage('bot', reply);
-  }, 450);
+  processResponse(text);
 });
 
-setTimeout(() => {
-  addMessage('bot', "こんにちは。\n\n質問も、日常の想いも、どちらも大切に受け止めます。どうぞお話しください。");
-}, 500);
+voiceBtn.addEventListener('click', () => {
+  if (recognition) {
+    recognition.start();
+  } else {
+    alert("お使いのブラウザは音声入力に対応していません。");
+  }
+});
+
+initSpeechRecognition();
 </script>
 </body>
 </html>
