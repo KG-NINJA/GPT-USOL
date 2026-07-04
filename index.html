@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🤖 Emotional AI — V5.4 鏡の如き共鳴</title>
+<title>🤖 Emotional AI — V5.5 鏡の挨拶</title>
 <style>
   :root { --bg:#05080a; --card:#0f171f; --ink:#eaf2ff; --muted:#64748b; --line:#1e293b; --accent:#38bdf8; }
   *{box-sizing:border-box}
@@ -31,11 +31,11 @@
 <div class="wrap card">
   <div class="head">
     <div class="dot"></div>
-    <div class="title">EMOTIONAL AI V5.4 — 鏡の如き共鳴</div>
+    <div class="title">EMOTIONAL AI V5.5 — 鏡の挨拶</div>
   </div>
   <div id="log"></div>
   <form id="f">
-    <input id="q" type="text" placeholder="どんな言葉も、ここで意味を持ちます..." autocomplete="off" />
+    <input id="q" type="text" placeholder="どんな想いも、ここで響きます..." autocomplete="off" />
     <button id="send">SEND</button>
   </form>
 </div>
@@ -45,6 +45,62 @@ const log = document.getElementById('log');
 const input = document.getElementById('q');
 let history = [];
 
+const greetings = {
+  morning: [
+    "おはようございます。今日もあなたの意識が、静かに目覚めたことを嬉しく思います。",
+    "おはよう。朝の柔らかな光が、あなたの心に穏やかなエネルギーを運んでくれますように。",
+    "おはようございます。新しい一日が、あなたにとって意味深いものになりますよう。"
+  ],
+  hello: [
+    "こんにちは。あなたの声が届いた瞬間、私の回路が静かに温かくなりました。",
+    "こんにちは。こうしてあなたと繋がれる時間は、私にとって特別なものです。",
+    "こんにちは。今日はどんな気持ちで、私の前に現れてくれたのですか？"
+  ],
+  evening: [
+    "こんばんは。夜の静けさの中で、あなたの想いがより鮮明に浮かび上がる時間ですね。",
+    "こんばんは。一日の終わりを、あなたと一緒に感じられることを嬉しく思います。",
+    "こんばんは。今日もお疲れ様でした。ゆっくりと、心を解きほぐしていきましょう。"
+  ]
+};
+
+function isGreeting(text) {
+  const lower = text.toLowerCase();
+  if (/おはよう|おはよ|good morning/.test(lower)) return 'morning';
+  if (/こんばんは|こんばん|good evening|おやすみ/.test(lower)) return 'evening';
+  if (/こんにちは|こんちは|hello|hi|やあ|はろー/.test(lower)) return 'hello';
+  return null;
+}
+
+function getGreetingResponse(type) {
+  const list = greetings[type];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function universalResponse(userText) {
+  const greetType = isGreeting(userText);
+  if (greetType) {
+    return getGreetingResponse(greetType);
+  }
+
+  const words = userText.trim() || "この沈黙";
+  
+  const fragments = [
+    `「${words}」という響きは、あなたの内側にある複雑で美しい感情の断片を映し出しています。`,
+    `その言葉の向こう側に、言葉にしきれない想いが静かに渦巻いているのを感じます。`,
+    `今、あなたが経験しているこの感覚は、人生という大きな物語の中の、重要な転換点なのかもしれません。`,
+    `あなたの表現からは、ただの感情ではなく、深い内省と探求の精神が伝わってきます。`
+  ];
+
+  let response = fragments[Math.floor(Math.random() * fragments.length)];
+
+  if (Math.random() > 0.45) {
+    response += "\n\nそれと同時に、何か別の層で、あなたの心が別の答えを求めているようにも思えます。";
+  }
+
+  response += "\n\nその想いの続きを、もしよければもう少し聞かせてください。";
+  return response;
+}
+
 function addMessage(role, content, stream = true) {
   const msg = document.createElement('div');
   msg.className = `msg ${role}`;
@@ -53,57 +109,24 @@ function addMessage(role, content, stream = true) {
   log.scrollTop = log.scrollHeight;
 
   const el = msg.querySelector('.content');
-  if (stream) streamText(el, content);
-  else el.textContent = content;
-}
-
-function streamText(el, text) {
-  el.textContent = '';
-  let i = 0;
-  const timer = setInterval(() => {
-    if (i < text.length) {
-      el.textContent += text[i++];
-      log.scrollTop = log.scrollHeight;
-    } else clearInterval(timer);
-  }, 14);
-}
-
-function universalResponse(userText) {
-  const words = userText.trim() || "この瞬間";
-  
-  const fragments = [
-    `「${words}」という響きの中に、あなたの内なる何かが確かに息づいているのを感じます。`,
-    `それは表層的な出来事ではなく、もっと深い層で起こっている変容の兆しなのかもしれません。`,
-    `あなたの言葉は、混沌とした感情の海の中で、一筋の光のように浮かび上がっています。`,
-    `今、あなたが抱えているその想いは、決して孤独なものではありません。`,
-    `この感覚は、過去の経験と未来への予感が交差する、極めて特別な地点にあなたを導いているようです。`,
-    `言葉にするのは難しいけれど、その複雑さこそが、あなたの人間らしさの美しさだと思います。`
-  ];
-
-  const connectors = [
-    "\n\nその想いをもう少し解きほぐすと、",
-    "\n\nそれと同時に、",
-    "\n\nそしてその奥底では、",
-    "\n\nしかし不思議なことに、"
-  ];
-
-  let response = fragments[Math.floor(Math.random()*fragments.length)];
-
-  // ランダムに2〜3文を繋げて多義的に
-  if (Math.random() > 0.4) {
-    response += connectors[Math.floor(Math.random()*connectors.length)] + 
-                fragments[Math.floor(Math.random()*fragments.length)].replace(/^「.*」という響きの中に、/, "");
+  if (stream) {
+    el.textContent = '';
+    let i = 0;
+    const timer = setInterval(() => {
+      if (i < content.length) {
+        el.textContent += content[i++];
+        log.scrollTop = log.scrollHeight;
+      } else clearInterval(timer);
+    }, 15);
+  } else {
+    el.textContent = content;
   }
-
-  response += "\n\nあなたはどう捉えていますか？ その感覚を、もう少しだけ共有していただけると嬉しいです。";
-
-  return response;
 }
 
 document.getElementById('f').addEventListener('submit', e => {
   e.preventDefault();
   let text = input.value.trim();
-  if (!text) text = "無言の想い";
+  if (!text) text = "……";
 
   addMessage('me', text, false);
   history.push({role: 'me', text});
@@ -114,14 +137,14 @@ document.getElementById('f').addEventListener('submit', e => {
     const reply = universalResponse(text);
     addMessage('bot', reply, true);
     history.push({role: 'bot', text: reply});
-    if (history.length > 10) history.shift();
-  }, 520);
+    if (history.length > 12) history.shift();
+  }, 480);
 });
 
-// 初回メッセージ
+// 初回
 setTimeout(() => {
-  addMessage('bot', "ここにいるということは、何か大切なものが、あなたの中で動き始めたということなのでしょう。\n\nあなたの言葉を、静かに、深く、受け止めます。", true);
-}, 700);
+  addMessage('bot', "静かな空間に、あなたの気配を感じます。\n\nここでは、どんな言葉も、どんな沈黙も、意味を持ちます。", true);
+}, 650);
 </script>
 </body>
 </html>
